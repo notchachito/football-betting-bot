@@ -20,6 +20,10 @@ FEATURE_COLS = [
     "away_fouls_avg",
     "combined_yellows_avg",
     "combined_fouls_avg",
+    # Referee features — #1 importance group (research confirmed)
+    "ref_avg_cards",
+    "ref_strictness",
+    "ref_cards_per_foul",
 ]
 
 
@@ -89,8 +93,16 @@ class XGBoostCardsModel:
         self._is_fitted = True
         return self
 
-    def predict(self, home_yellows_avg: float, away_yellows_avg: float,
-                home_fouls_avg: float, away_fouls_avg: float) -> CardsPrediction:
+    def predict(
+        self,
+        home_yellows_avg: float,
+        away_yellows_avg: float,
+        home_fouls_avg: float,
+        away_fouls_avg: float,
+        ref_avg_cards: float = 3.5,
+        ref_strictness: float = 0.0,
+        ref_cards_per_foul: float = 0.12,
+    ) -> CardsPrediction:
         if not self._is_fitted:
             raise RuntimeError("Model not fitted.")
 
@@ -99,6 +111,7 @@ class XGBoostCardsModel:
             home_fouls_avg, away_fouls_avg,
             home_yellows_avg + away_yellows_avg,
             home_fouls_avg + away_fouls_avg,
+            ref_avg_cards, ref_strictness, ref_cards_per_foul,
         ]], dtype=np.float32)
 
         expected = float(self._yellows_model.predict(x)[0])  # type: ignore[union-attr]

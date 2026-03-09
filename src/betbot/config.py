@@ -69,8 +69,10 @@ KELLY_CAP = 0.05
 # Minimum matches needed before trusting a model
 MIN_MATCHES_FOR_MODEL = 50
 
-# Dixon-Coles time-decay xi (higher = faster decay)
-DC_TIME_DECAY_XI = 0.005
+# Dixon-Coles time-decay xi — research-confirmed optimal (days unit)
+# Range: 0.001–0.003. 0.0018 is best-practice default for European top leagues.
+# Tune per league via log-likelihood grid search after training.
+DC_TIME_DECAY_XI = 0.0018
 
 # Dixon-Coles BTTS ensemble weights
 DC_BTTS_WEIGHT = 0.6

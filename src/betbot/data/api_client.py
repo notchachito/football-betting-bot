@@ -107,7 +107,7 @@ class ApiFootballClient:
             remaining = self._api_calls.remaining()
             if remaining <= 0:
                 raise BudgetExhaustedError(
-                    f"Daily API budget exhausted. Run again tomorrow or use cached data."
+                    "Daily API budget exhausted. Run again tomorrow or use cached data."
                 )
 
             url = self.BASE_URL + endpoint
@@ -124,6 +124,12 @@ class ApiFootballClient:
             if errors:
                 raise ApiError(f"API returned errors: {errors}")
 
+            # API-Football returns remaining quota in headers — use this as ground truth
+            # Headers: x-ratelimit-requests-remaining (daily), X-RateLimit-Remaining (per-minute)
+            server_remaining = resp.headers.get("x-ratelimit-requests-remaining")
+            if server_remaining is not None:
+                self._server_remaining = int(server_remaining)
+
             self._api_calls.log(endpoint, params, resp.status_code, cached=False)
             return body
 
@@ -133,3 +139,8 @@ class ApiFootballClient:
             self._api_calls.log(endpoint, params, 200, cached=True)
 
         return data
+
+    @property
+    def server_remaining(self) -> int | None:
+        """Remaining calls reported by the API server headers (most accurate)."""
+        return getattr(self, "_server_remaining", None)

@@ -56,6 +56,7 @@ def build_dixon_coles_dataset(
 def build_cards_features(
     matches: list[Match],
     stats: list[MatchStats],
+    referee_profiles: "pd.DataFrame | None" = None,
 ) -> pd.DataFrame:
     """
     Build feature DataFrame for the XGBoost cards model.
@@ -100,6 +101,18 @@ def build_cards_features(
         total_yellows = (s.home_yellows or 0) + (s.away_yellows or 0)
         any_red = int(((s.home_reds or 0) + (s.away_reds or 0)) > 0)
 
+        # Referee profile — the #1 predictive feature for cards
+        # (research: referee strictness z-score more predictive than team discipline alone)
+        ref_avg_cards = 3.5       # league average fallback
+        ref_strictness = 0.0      # neutral fallback
+        ref_cards_per_foul = 0.12 # typical fallback
+        if referee_profiles is not None and m.referee and m.referee in referee_profiles.index:
+            ref = referee_profiles.loc[m.referee]
+            if ref["n_matches"] >= 10:  # require minimum sample
+                ref_avg_cards = float(ref["avg_total_cards"])
+                ref_strictness = float(ref["strictness_score"])
+                ref_cards_per_foul = float(ref["cards_per_foul"])
+
         rows.append({
             "match_id": m.id,
             "match_date": m.match_date,
@@ -109,6 +122,10 @@ def build_cards_features(
             "away_fouls_avg": away_fouls_avg,
             "combined_yellows_avg": home_yellows_avg + away_yellows_avg,
             "combined_fouls_avg": home_fouls_avg + away_fouls_avg,
+            # Referee features (highest importance group per research)
+            "ref_avg_cards": ref_avg_cards,
+            "ref_strictness": ref_strictness,
+            "ref_cards_per_foul": ref_cards_per_foul,
             # Targets
             "total_yellows": total_yellows,
             "any_red": any_red,

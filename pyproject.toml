@@ -30,6 +30,16 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.11",
 ]
+# Historical training data from football-data.co.uk (free, corners/cards/referee/odds)
+historical = [
+    "soccerdata>=0.6",
+]
+# Optional: production-ready Dixon-Coles (Cython-optimised)
+# penaltyblog has DixonColesGoalModel, implied odds tools, and data scrapers
+advanced = [
+    "soccerdata>=0.6",
+    "penaltyblog>=1.0",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
