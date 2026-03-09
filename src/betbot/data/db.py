@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS leagues (
     id          INTEGER PRIMARY KEY,
     name        TEXT NOT NULL,
     country     TEXT NOT NULL,
-    season      INTEGER NOT NULL,
-    UNIQUE(id, season)
+    season      INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS teams (

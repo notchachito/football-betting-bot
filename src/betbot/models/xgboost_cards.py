@@ -106,7 +106,9 @@ class XGBoostCardsModel:
 
         p_over_3_5 = 1.0 - poisson_cdf(3, expected)
         p_over_4_5 = 1.0 - poisson_cdf(4, expected)
-        p_any_red = float(self._red_model.predict_proba(x)[0, 1])  # type: ignore[union-attr]
+        red_proba = self._red_model.predict_proba(x)  # type: ignore[union-attr]
+        # If only one class in training data, proba has shape (n, 1)
+        p_any_red = float(red_proba[0, 1]) if red_proba.shape[1] > 1 else 0.05
 
         return CardsPrediction(
             expected_yellows=expected,

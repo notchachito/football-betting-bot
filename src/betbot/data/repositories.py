@@ -101,7 +101,7 @@ class LeagueRepository:
         self._conn.execute(
             """INSERT INTO leagues(id, name, country, season)
                VALUES(?, ?, ?, ?)
-               ON CONFLICT(id, season) DO UPDATE SET name=excluded.name""",
+               ON CONFLICT(id) DO UPDATE SET name=excluded.name, season=excluded.season""",
             (league.id, league.name, league.country, league.season),
         )
         self._conn.commit()
